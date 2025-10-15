@@ -24,7 +24,7 @@ Windows Defender may flag this application as a trojan. This is a \*\*false posi
 
 
 
-\*\*Option 1: Add Windows Defender Exclusion (Recommended)\*\*
+\*\*Option 1: Add Windows Defender Exclusion (If you want to use the autoclicker)\*\*
 
 1\. Open Windows Security
 
@@ -38,3 +38,6 @@ Windows Defender may flag this application as a trojan. This is a \*\*false posi
 
 6\. Select the AutoClicker.exe file
 
+\*\*Option 2: Don't use the autoclicker\*\*
+
+1\. Until I as the developer am able to code-sign this, it will be flagged as malware.
