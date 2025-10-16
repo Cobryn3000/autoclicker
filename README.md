@@ -1,43 +1,43 @@
-\# AutoClicker
+AutoClicker
 
 
 
-\## Windows Defender False Positive
+Windows Defender False Positive
 
 
 
-Windows Defender may flag this application as a trojan. This is a \*\*false positive\*\* that commonly occurs with PyInstaller-built executables.
+Windows Defender may flag this application as a trojan. This is a false positive that commonly occurs with PyInstaller-built executables.
 
 
 
-\### Why does this happen?
+Why does this happen?
 
-\- PyInstaller packages Python code in a way that antivirus software considers suspicious
+- PyInstaller packages Python code in a way that antivirus software considers suspicious
 
-\- The application uses keyboard and mouse automation, which triggers security alerts
+- The application uses keyboard and mouse automation, which triggers security alerts
 
-\- The executable is not code-signed, and that costs me money as a developer to do.
-
-
-
-\### How to fix:
+- The executable is not code-signed, and that costs me money as a developer to do.
 
 
 
-\*\*Option 1: Add Windows Defender Exclusion (If you want to use the autoclicker)\*\*
+How to fix:
 
-1\. Open Windows Security
 
-2\. Go to "Virus \& threat protection"
 
-3\. Click "Manage settings" under "Virus \& threat protection settings"
+Option 1: Add Windows Defender Exclusion (If you want to use the autoclicker)
 
-4\. Scroll down to "Exclusions" and click "Add or remove exclusions"
+1. Open Windows Security
 
-5\. Click "Add an exclusion" → "File"
+2. Go to "Virus \& threat protection"
 
-6\. Select the AutoClicker.exe file
+3. Click "Manage settings" under "Virus \& threat protection settings"
 
-\*\*Option 2: Don't use the autoclicker\*\*
+4. Scroll down to "Exclusions" and click "Add or remove exclusions"
 
-1\. Until I as the developer am able to code-sign this, it will be flagged as malware.
+5. Click "Add an exclusion" → "File"
+
+6. Select the AutoClicker.exe file
+
+Option 2: Don't use the autoclicker
+
+1. Until I as the developer am able to code-sign this, it will be flagged as malware.
