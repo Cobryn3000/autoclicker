@@ -11,21 +11,44 @@ set "GITHUB_REPO=Cobryn3000/autoclicker"
 set "EXE_URL=https://raw.githubusercontent.com/%GITHUB_REPO%/main/AutoClicker.exe"
 set "APPDATA_DIR=%LOCALAPPDATA%\AutoClicker"
 set "EXE_PATH=%APPDATA_DIR%\AutoClicker.exe"
-set "DESKTOP=%USERPROFILE%\Desktop"
+
+:: Get the correct Desktop path using PowerShell
+echo [1/6] Detecting desktop location...
+set "TEMP_PS=%TEMP%\get_desktop.ps1"
+(
+echo $desktop = [Environment]::GetFolderPath('Desktop')
+echo Write-Output $desktop
+) > "%TEMP_PS%"
+for /f "delims=" %%I in ('powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%"') do set "DESKTOP=%%I"
+del "%TEMP_PS%" 2>nul
+
+if "%DESKTOP%"=="" (
+    echo WARNING: Could not detect desktop path, using default.
+    set "DESKTOP=%USERPROFILE%\Desktop"
+)
+
 set "SHORTCUT=%DESKTOP%\AutoClicker.lnk"
+echo Desktop path: %DESKTOP%
+echo.
 
 :: Create AppData directory if it doesn't exist
-echo [1/5] Creating installation directory...
+echo [2/6] Creating installation directory...
 if not exist "%APPDATA_DIR%" (
-    mkdir "%APPDATA_DIR%"
-    echo Created directory: %APPDATA_DIR%
+    mkdir "%APPDATA_DIR%" 2>nul
+    if exist "%APPDATA_DIR%" (
+        echo Created directory: %APPDATA_DIR%
+    ) else (
+        echo ERROR: Failed to create directory: %APPDATA_DIR%
+        pause
+        exit /b 1
+    )
 ) else (
     echo Directory already exists: %APPDATA_DIR%
 )
 echo.
 
 :: Download the latest AutoClicker.exe
-echo [2/5] Downloading latest AutoClicker.exe...
+echo [3/6] Downloading latest AutoClicker.exe...
 echo From: %EXE_URL%
 echo To: %EXE_PATH%
 
@@ -46,10 +69,10 @@ echo }
 
 :: Run PowerShell script
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%"
-set "DOWNLOAD_ERROR=%ERRORLEVEL%"
+set "DOWNLOAD_ERROR=!ERRORLEVEL!"
 del "%TEMP_PS%" 2>nul
 
-if %DOWNLOAD_ERROR% NEQ 0 (
+if !DOWNLOAD_ERROR! NEQ 0 (
     echo.
     echo ERROR: Failed to download AutoClicker.exe
     echo Please check your internet connection and try again.
@@ -59,10 +82,15 @@ if %DOWNLOAD_ERROR% NEQ 0 (
 echo.
 
 :: Verify the file was downloaded
-echo [3/5] Verifying download...
+echo [4/6] Verifying download...
 if exist "%EXE_PATH%" (
     echo File downloaded successfully!
-    for %%A in ("%EXE_PATH%") do echo File size: %%~zA bytes
+    for %%A in ("%EXE_PATH%") do set "FILE_SIZE=%%~zA"
+    echo File size: !FILE_SIZE! bytes
+    
+    if !FILE_SIZE! LSS 1000 (
+        echo WARNING: File size seems unusually small, download may be corrupted.
+    )
 ) else (
     echo ERROR: Downloaded file not found!
     pause
@@ -71,13 +99,18 @@ if exist "%EXE_PATH%" (
 echo.
 
 :: Download version.txt to AppData
-echo [4/5] Downloading additional files...
+echo [5/6] Downloading additional files...
 echo Downloading version information...
 set "TEMP_PS=%TEMP%\download_version.ps1"
 (
 echo $ProgressPreference = 'SilentlyContinue'
 echo [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-echo try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/%GITHUB_REPO%/main/version.txt' -OutFile '%APPDATA_DIR%\version.txt' -UserAgent 'AutoClicker-Setup' -ErrorAction Stop } catch { }
+echo try { 
+echo     Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/%GITHUB_REPO%/main/version.txt' -OutFile '%APPDATA_DIR%\version.txt' -UserAgent 'AutoClicker-Setup' -ErrorAction Stop 
+echo     Write-Host 'Version file downloaded successfully'
+echo } catch { 
+echo     Write-Host 'Warning: Could not download version file'
+echo }
 ) > "%TEMP_PS%"
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%" 2>nul
 del "%TEMP_PS%" 2>nul
@@ -88,15 +121,40 @@ set "TEMP_PS=%TEMP%\download_readme.ps1"
 (
 echo $ProgressPreference = 'SilentlyContinue'
 echo [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-echo try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/%GITHUB_REPO%/main/README.md' -OutFile '%APPDATA_DIR%\README.md' -UserAgent 'AutoClicker-Setup' -ErrorAction Stop } catch { }
+echo try { 
+echo     Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/%GITHUB_REPO%/main/README.md' -OutFile '%APPDATA_DIR%\README.md' -UserAgent 'AutoClicker-Setup' -ErrorAction Stop 
+echo     Write-Host 'README downloaded successfully'
+echo } catch { 
+echo     Write-Host 'Warning: Could not download README'
+echo }
 ) > "%TEMP_PS%"
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%" 2>nul
 del "%TEMP_PS%" 2>nul
 echo.
 
-:: Launch AutoClicker
-echo [5/5] Launching AutoClicker...
+:: Create desktop shortcut
+echo [6/6] Creating desktop shortcut...
+set "TEMP_PS=%TEMP%\create_shortcut.ps1"
+(
+echo $WshShell = New-Object -comObject WScript.Shell
+echo $Shortcut = $WshShell.CreateShortcut('%SHORTCUT%')
+echo $Shortcut.TargetPath = '%EXE_PATH%'
+echo $Shortcut.WorkingDirectory = '%APPDATA_DIR%'
+echo $Shortcut.Save()
+echo Write-Host 'Shortcut created successfully: %SHORTCUT%'
+) > "%TEMP_PS%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%" 2>nul
+set "SHORTCUT_ERROR=!ERRORLEVEL!"
+del "%TEMP_PS%" 2>nul
+
+if !SHORTCUT_ERROR! NEQ 0 (
+    echo WARNING: Could not create desktop shortcut.
+) else (
+    echo Shortcut created on desktop: AutoClicker.lnk
+)
 echo.
+
+:: Launch AutoClicker
 echo ========================================
 echo Setup Complete!
 echo ========================================
