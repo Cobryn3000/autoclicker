@@ -18,6 +18,8 @@ Features:
 
 - Auto updater
 
+- Customizable random offset between clicks
+
 Settings:
 
 - Prevent mouse movement when clicking
