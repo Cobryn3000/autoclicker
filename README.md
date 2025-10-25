@@ -2,6 +2,34 @@ AutoClicker
 
 
 
+Features:
+
+- Ability to switch between clicks per second and time between clicks
+
+- Can left click, right click, and middle click
+
+- Can double click
+
+- Repeat until stopped or a set amount of times
+
+- location selection or current cursor location
+
+- Hotkey changing
+
+- Auto updater
+
+Settings:
+
+- Prevent mouse movement when clicking
+
+- Dark mode
+
+- Always on top
+
+- Minimize on start
+
+
+
 Windows Defender False Positive
 
 
