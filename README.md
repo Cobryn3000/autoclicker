@@ -30,6 +30,8 @@ Settings:
 
 - Minimize on start
 
+- Autostop upon multiple window changes (beta)
+
 
 
 Windows Defender False Positive
