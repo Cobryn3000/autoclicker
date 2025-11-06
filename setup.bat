@@ -162,13 +162,13 @@ echo [7/7] Creating Start Menu shortcut...
 set "TEMP_PS=%TEMP%\create_startmenu_shortcut.ps1"
 (
 echo $WshShell = New-Object -comObject WScript.Shell
-echo $Shortcut = $WshShell.CreateShortcut('%STARTMENU_SHORTCUT%')
+echo $Shortcut = $WshShell.CreateShortcut^('%STARTMENU_SHORTCUT%'^)
 echo $Shortcut.TargetPath = '%EXE_PATH%'
 echo $Shortcut.WorkingDirectory = '%APPDATA_DIR%'
-echo $Shortcut.Save()
+echo $Shortcut.Save^(^)
 echo Write-Host 'Start Menu shortcut created successfully'
 ) > "%TEMP_PS%"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%" 2>nul
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%"
 set "STARTMENU_ERROR=!ERRORLEVEL!"
 del "%TEMP_PS%" 2>nul
 
