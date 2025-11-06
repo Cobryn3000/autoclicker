@@ -13,7 +13,7 @@ set "APPDATA_DIR=%LOCALAPPDATA%\AutoClicker"
 set "EXE_PATH=%APPDATA_DIR%\AutoClicker.exe"
 
 :: Get the correct Desktop path using PowerShell
-echo [1/6] Detecting desktop location...
+echo [1/7] Detecting desktop location...
 set "TEMP_PS=%TEMP%\get_desktop.ps1"
 (
 echo $desktop = [Environment]::GetFolderPath('Desktop')
@@ -28,11 +28,14 @@ if "%DESKTOP%"=="" (
 )
 
 set "SHORTCUT=%DESKTOP%\AutoClicker.lnk"
+set "STARTMENU_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs"
+set "STARTMENU_SHORTCUT=%STARTMENU_DIR%\AutoClicker.lnk"
 echo Desktop path: %DESKTOP%
+echo Start Menu path: %STARTMENU_DIR%
 echo.
 
 :: Create AppData directory if it doesn't exist
-echo [2/6] Creating installation directory...
+echo [2/7] Creating installation directory...
 if not exist "%APPDATA_DIR%" (
     mkdir "%APPDATA_DIR%" 2>nul
     if exist "%APPDATA_DIR%" (
@@ -48,7 +51,7 @@ if not exist "%APPDATA_DIR%" (
 echo.
 
 :: Download the latest AutoClicker.exe
-echo [3/6] Downloading latest AutoClicker.exe...
+echo [3/7] Downloading latest AutoClicker.exe...
 echo From: %EXE_URL%
 echo To: %EXE_PATH%
 
@@ -82,7 +85,7 @@ if !DOWNLOAD_ERROR! NEQ 0 (
 echo.
 
 :: Verify the file was downloaded
-echo [4/6] Verifying download...
+echo [4/7] Verifying download...
 if exist "%EXE_PATH%" (
     echo File downloaded successfully!
     for %%A in ("%EXE_PATH%") do set "FILE_SIZE=%%~zA"
@@ -99,7 +102,7 @@ if exist "%EXE_PATH%" (
 echo.
 
 :: Download version.txt to AppData
-echo [5/6] Downloading additional files...
+echo [5/7] Downloading additional files...
 echo Downloading version information...
 set "TEMP_PS=%TEMP%\download_version.ps1"
 (
@@ -133,7 +136,7 @@ del "%TEMP_PS%" 2>nul
 echo.
 
 :: Create desktop shortcut
-echo [6/6] Creating desktop shortcut...
+echo [6/7] Creating desktop shortcut...
 set "TEMP_PS=%TEMP%\create_shortcut.ps1"
 (
 echo $WshShell = New-Object -comObject WScript.Shell
@@ -151,6 +154,28 @@ if !SHORTCUT_ERROR! NEQ 0 (
     echo WARNING: Could not create desktop shortcut.
 ) else (
     echo Shortcut created on desktop: AutoClicker.lnk
+)
+echo.
+
+:: Create Start Menu shortcut
+echo [7/7] Creating Start Menu shortcut...
+set "TEMP_PS=%TEMP%\create_startmenu_shortcut.ps1"
+(
+echo $WshShell = New-Object -comObject WScript.Shell
+echo $Shortcut = $WshShell.CreateShortcut('%STARTMENU_SHORTCUT%')
+echo $Shortcut.TargetPath = '%EXE_PATH%'
+echo $Shortcut.WorkingDirectory = '%APPDATA_DIR%'
+echo $Shortcut.Save()
+echo Write-Host 'Start Menu shortcut created successfully'
+) > "%TEMP_PS%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP_PS%" 2>nul
+set "STARTMENU_ERROR=!ERRORLEVEL!"
+del "%TEMP_PS%" 2>nul
+
+if !STARTMENU_ERROR! NEQ 0 (
+    echo WARNING: Could not create Start Menu shortcut.
+) else (
+    echo Shortcut created in Start Menu: AutoClicker.lnk
 )
 echo.
 
